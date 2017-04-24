@@ -1,0 +1,10 @@
+#!/bin/bash
+# Script to start the gunicorn web server
+
+cd /home/pi/Projects/OD
+exec gunicorn wsgi:application \
+  --bind=0.0.0.0:8081 \
+  --user=pi \
+  --log-level=debug 
+
+

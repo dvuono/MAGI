@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE"/>
+    <meta http-equiv="refresh" content="600">
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+      <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
+      <script type="text/javascript" src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="style.css" />
+    <title>Microbial Anaerobic Growth Intervalometer</title>
+  </head>
+
+  <body>
+    <script>
+      function convertToDate(dateString){
+        return new Date(dateString.replace("_", "T"));
+      }
+    </script>
+    <div id="page">
+      <div id="topPanel">
+        <div class="left-panel">
+          <div class="contentTitle">
+                  <h1>Microbial Anaerobic Growth Intervalometer (MAGI)</h1>
+                  <h3>Optical Density data readings using software driven automation and real-time visualization. <br>Readings are taken every 30 minutes.
+                    This page is refreshed every 10 minutes.</h3>
+          </div>
+        </div>
+        <div class="right-panel">
+          <button id="filebutton" class="shadow">Save Data</button>
+          <button id="clearbutton" class="shadow">Clear Data</button>
+          <script>
+          $('#clearbutton').click(function(){
+            var r = window.confirm("Are you sure you want to delete the existing data?");
+	    if(r == true){
+              //call the delete_file function
+	      var h = location.href;
+	      $.get('/delete_file', function(responseText){
+		console.log("response = " + responseText);
+		console.log("originial url = " + h);
+	        $.get(h, function(){
+			location.reload();
+		});
+	      });
+
+	      // var xhttp = new XMLHttpRequest();
+              // xhttp.onreadystatechange = fuction(	     
+ 	      //xhttp.open("GET", '/delete_file', false);
+	      //xhttp.send();
+	      //xhttp.open("GET", h, false);
+	      //xhttp.send();
+	    } else {
+              //do nothing
+            }
+          })
+          </script>
+	  <script>
+            $('#filebutton').click(function(){
+              $.ajax({
+                  url: "data.json", // path to file
+                  dataType: 'json', // type of file (text, json, xml, etc)
+                  success: function(data) { // callback for successful completion
+                    //Initialize with the header row
+                    var dataCollection = "      Timestamp      \t"+"Data1\t"+"Data2\t"+
+                    "Data3\t"+"Data4\t"+"Data5\t"+"Data6\t"+"Data7\t"+
+                    "Data8\t"+"Data9\t"+"Data10\t"+"Data11\t"+"Data12\r\n";
+                      $.each(data, function(index,object){
+                        var dataRow=object.Timestamp+"\t"+
+                        object.Data1+"\t"+
+                        object.Data2+"\t"+
+                        object.Data3+"\t"+
+                        object.Data4+"\t"+
+                        object.Data5+"\t"+
+                        object.Data6+"\t"+
+                        object.Data7+"\t"+
+                        object.Data8+"\t"+
+                        object.Data9+"\t"+
+                        object.Data10+"\t"+
+                        object.Data11+"\t"+
+                        object.Data12+"\r\n"
+                        dataCollection = dataCollection.concat(dataRow);
+                      });
+                      // write data to downloadable file
+                      var textToWrite = dataCollection;
+                      var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+                      var now = new Date();
+                      var strDateTime =  now.toISOString();
+                      var fileNameToSaveAs = (strDateTime + "_TabDelim_OD_Data.txt");
+                      var downloadLink = document.createElement("a");
+                      downloadLink.download = fileNameToSaveAs;
+                      downloadLink.innerHTML = "Download File";
+                      if (window.URL != null)
+                      {
+                          // Chrome allows the link to be clicked
+                          // without actually adding it to the DOM.
+                          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                      }
+                      else
+                      {
+                          // Firefox requires the link to be added to the DOM
+                          // before it can be clicked.
+                          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                          downloadLink.onclick = destroyClickedElement;
+                          downloadLink.style.display = "none";
+                          document.body.appendChild(downloadLink);
+                      }
+                      downloadLink.click();
+                  },
+                  error: function() { // callback if there's an error
+                    alert("Error reading data file.  Wait several minutes and try again.");
+                  }
+              });
+            });
+          </script>
+        </div> <!-- right-panel -->
+      </div> <!-- topPanel -->
+
+      <div id="content" class="contentText">
+        <script>
+          $(document).ready(function(){
+            var jsondata;
+
+              $.ajax({
+                  url: "data.json", // path to file
+                  dataType: 'json', // type of file (text, json, xml, etc)
+                  success: function(data) { // callback for successful completion
+                    jsondata = data;
+                    var dataset1 = [];
+                    var dataset2 = [];
+                    var dataset3 = [];
+                    var dataset4 = [];
+                    var dataset5 = [];
+                    var dataset6 = [];
+                    var dataset7 = [];
+                    var dataset8 = [];
+                    var dataset9 = [];
+                    var dataset10 = [];
+                    var dataset11 = [];
+                    var dataset12 = [];
+                      $.each(data, function(index,object){
+                        var tblRow="<tr>"+"<td align=\"center\" width=\"100px\">"+object.Timestamp+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data1+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data2+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data3+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data4+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data5+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data6+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data7+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data8+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data9+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data10+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data11+"</td>"+
+                        "<td align=\"center\" width=\"50px\">"+object.Data12+"</td>"+"</tr>"
+                        $(tblRow).appendTo("#datatable tbody");
+                        var dateObject = convertToDate(object.Timestamp);
+                        dataset1.push({x:dateObject, y:parseInt(object.Data1)});
+                        dataset2.push({x:dateObject, y:parseInt(object.Data2)});
+                        dataset3.push({x:dateObject, y:parseInt(object.Data3)});
+                        dataset4.push({x:dateObject, y:parseInt(object.Data4)});
+                        dataset5.push({x:dateObject, y:parseInt(object.Data5)});
+                        dataset6.push({x:dateObject, y:parseInt(object.Data6)});
+                        dataset7.push({x:dateObject, y:parseInt(object.Data7)});
+                        dataset8.push({x:dateObject, y:parseInt(object.Data8)});
+                        dataset9.push({x:dateObject, y:parseInt(object.Data9)});
+                        dataset10.push({x:dateObject, y:parseInt(object.Data10)});
+                        dataset11.push({x:dateObject, y:parseInt(object.Data11)});
+                        dataset12.push({x:dateObject, y:parseInt(object.Data12)});
+                      });
+                      //Set up chart object
+                      var chart = new CanvasJS.Chart("chartContainer",
+                      {
+                            zoomEnabled: false, animationEnabled: false,
+                            title:{
+                              text: "OD Data"
+                            },
+                            axisX:{
+                              title: "Time",
+                              labelFontSize: 12
+                            },
+                            axisY:{
+                              title: "ADC output",
+                              labelFontSize: 12,
+                              minimum: 0,
+                              maximum: 1024
+                            },
+                            toolTip:{
+                              shared: true
+                            },
+                            data: [
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data1",
+                              showLine: true,
+                              dataPoints: dataset1
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data2",
+                              dataPoints: dataset2
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data3",
+                              dataPoints: dataset3
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data4",
+                              dataPoints: dataset4
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data5",
+                              dataPoints: dataset5
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data6",
+                              dataPoints: dataset6
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data7",
+                              dataPoints: dataset7
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data8",
+                              dataPoints: dataset8
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data9",
+                              dataPoints: dataset9
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data10",
+                              dataPoints: dataset10
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data11",
+                              dataPoints: dataset11
+                            },
+                            {
+                              type: "line",
+                              lineThickness:2,
+                              showInLegend: true,
+                              name: "Data12",
+                              dataPoints: dataset12
+                            }
+                          ],
+                          legend: {
+                            verticalAlign: "top",
+                            horizontalAlign: "center",
+                            fontFamily: "Lucida Sans Unicode",
+                            fontSize: 12,
+                            cursor: "pointer",
+                            itemclick: function (e) {
+                                //console.log("legend click: " + e.dataPointIndex);
+                                //console.log(e);
+                                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                                  e.dataSeries.visible = false;
+                            } else {
+                              e.dataSeries.visible = true;
+                            }
+                            e.chart.render();
+                            }
+                          }
+                          });
+                      chart.render();
+                    },
+                  error: function() { // callback if there's an error
+                    alert("Error reading data file.  Wait several minutes and try again");
+                  }
+
+              });
+              $("#datatable").scrollTop(9999);
+              //$("#chart").load("OD_Data.html");
+
+          });
+        </script>
+      </div> <!-- content -->
+      <div id="datatableHeader" >
+        <table>
+          <thead class="contentText">
+            <tr border="2">
+              <th width="100px">Timestamp</th>
+              <th width="50px">Data1</th>
+              <th width="50px">Data2</th>
+              <th width="50px">Data3</th>
+              <th width="50px">Data4</th>
+              <th width="50px">Data5</th>
+              <th width="50px">Data6</th>
+              <th width="50px">Data7</th>
+              <th width="50px">Data8</th>
+              <th width="50px">Data9</th>
+              <th width="50px">Data10</th>
+              <th width="50px">Data11</th>
+              <th width="50px">Data12</th>
+            </tr>
+          </thead>
+          <tbody class="contentText">
+            <tr >
+              <td align="center">==================</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+              <td align="center">=====</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> <!-- datatableHeader -->
+
+      <div id="datatable" class="table-container">
+        <table>
+          <thead class="contentText">
+              <tr border="2">
+                <th width="100px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+              </tr>
+          </thead>
+          <tbody class="contentText">
+          </tbody>
+        </table>
+    </div> <!-- datatable -->
+        <p></p>
+      <div id="chartContainer" class="chart">  </div> <!-- chart -->
+  </div> <!-- page -->
+  </body>
+</html>
